@@ -6,12 +6,13 @@ from skimage.transform import resize
 from scipy.spatial import distance
 import model
 from pyflann import *
+import os
 
+path = open('dir.txt', 'r').read()
 
-
-image_dirpath = "E:/UIT/CS231.J21.KHTN/FinalProject/Image"
+image_dirpath = 'static\img'
 image_size = 160
-model_path = "./facenet_keras_weights.h5"
+model_path = path
 
 model = model.InceptionResNetV1(weights_path=model_path)
 
@@ -104,63 +105,6 @@ def getCropImage(faces, img, margin):
         cropped = img[y - margin // 2:y + h + margin // 2, x - margin // 2:x + w + margin // 2, :]
         align.append(cropped)
     return align
-
-
-def Ransac(img1_path, img2_path):
-        img1 = cv2.imread(img1_path)
-        img2 = cv2.imread(img2_path)
-        # Initiate SIFT detector
-        sift = cv2.SIFT_create()
-
-        # find the keypoints and descriptors with SIFT
-        kp1, des1 = sift.detectAndCompute(img1, None)
-        kp2, des2 = sift.detectAndCompute(img2, None)
-
-        random.seed(18521555)
-        ran = random.sample(range(0, len(kp1)), 4)
-
-        try:
-          x1 = kp1[ran[0]].pt[0]
-          y1 = kp1[ran[0]].pt[1]
-          x2 = kp1[ran[1]].pt[0]
-          y2 = kp1[ran[1]].pt[1]
-          x3 = kp1[ran[2]].pt[0]
-          y3 = kp1[ran[2]].pt[1]
-          x4 = kp1[ran[3]].pt[0]
-          y4 = kp1[ran[3]].pt[1]
-
-          x1_dst = kp2[ran[0]].pt[0]
-          y1_dst = kp2[ran[0]].pt[1]
-          x2_dst = kp2[ran[1]].pt[0]
-          y2_dst = kp2[ran[1]].pt[1]
-          x3_dst = kp2[ran[2]].pt[0]
-          y3_dst = kp2[ran[2]].pt[1]
-          x4_dst = kp2[ran[3]].pt[0]
-          y4_dst = kp2[ran[3]].pt[1]
-        except:
-          print('Not enought point')
-          return 0
-
-
-        scrPoint = np.array([[x1, y1], [x2, y2], [x3, y3], [x4, y4]])
-        dstPoint = np.array([[x1_dst, y1_dst], [x2_dst, y2_dst], [x3_dst, y3_dst], [x4_dst, y4_dst]])
-        h, status = cv2.findHomography(scrPoint, dstPoint)
-
-        inlier = 0
-
-        for i in range(min(len(kp1), len(kp2))):
-          x1 = kp1[i].pt[0]
-          y1 = kp1[i].pt[1]
-          temp = np.array([[x1], [y1], [1]])
-          matrix = np.dot(h, temp)
-          temp = [matrix[0][0], matrix[1][0]]
-          dist = np.linalg.norm(temp - np.array([kp2[i].pt[0], kp2[i].pt[1]]))
-          if dist < 5.0:
-              inlier += 1
-          # print(dist)
-        return inlier
-
-
 
 
 a = os.listdir('static/img')

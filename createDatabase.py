@@ -1,24 +1,20 @@
 import numpy as np
-import os
-import matplotlib.pyplot as plt
 import cv2
-from sklearn.decomposition import PCA
-from mpl_toolkits.mplot3d import Axes3D
-from mpl_toolkits.mplot3d import proj3d
 from imageio import imread
 from skimage.transform import resize
 from scipy.spatial import distance
 from keras.models import load_model
 import os
-import random
-from google.colab.patches import cv2_imshow
-# %matplotlib inline
+import model
 
-image_dirpath = "/content/data/"
+
+path = open('dir.txt', 'r').read()
+
+image_dirpath = 'static\img'
 image_size = 160
-model_path = "/content/facenet_keras.h5"
+model_path = path
 
-model = load_model(model_path)
+model = model.InceptionResNetV1(weights_path=model_path)
 
 def prewhiten(x):
     if x.ndim == 4:
@@ -137,7 +133,7 @@ def search3(face, database, dis='euclidean'):
 
 database = []
 image_filepaths = []
-image_dirpath="/content/data/"
+image_dirpath="/static/img/"
 path = os.listdir(image_dirpath)
 path.sort()
 count = 0
@@ -162,17 +158,17 @@ database = sorted(database, key=lambda score:score[2])
 dic = {}
 import json
 for i in range(len(database)):
-  with open("/content/features2/{filename}.json".format(filename=database[i][0]),"w", encoding='utf-8') as f:
+  with open("/static/feature/{filename}.json".format(filename=database[i][0]),"w", encoding='utf-8') as f:
     json.dump({'ID': database[i][0],'features vector': database[i][1].tolist(), 'filename': "./static/img/"+database[i][2][0]}, f)
 
 f1data = "" 
-a = os.listdir('/content/features2')
+a = os.listdir('/static/img')
 a.sort()
 for file in a:
-    with open('/content/features2/'+file, "r") as infile:
+    with open('/static/img'+file, "r") as infile:
         f1data += infile.read()
         f1data += "\n"
-with open('/content/features.json', "w") as f1: 
+with open('./features.json', "w") as f1:
         f1.write(f1data)
 
 
